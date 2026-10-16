@@ -24,7 +24,5 @@ services:
         value: "0.05"
       - key: RANDOM_STATE
         value: "42"
-      # Update this to your actual Netlify URL after the frontend is
-      # deployed (Render dashboard -> edaic-backend -> Environment).
       - key: ALLOWED_ORIGINS
-        value: https://REPLACE-WITH-YOUR-NETLIFY-URL.netlify.app
+        value: https://edaic-data-cleaning.netlify.app
