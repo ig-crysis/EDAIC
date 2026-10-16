@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  mongodb:
+    image: mongo:7
+    container_name: edaic_mongo
+    restart: unless-stopped
+    # NOTE: intentionally NOT exposing 27017 to the host machine.
+    # The backend container talks to this database over Docker's internal
+    # network (using the hostname "mongodb"), so it doesn't need this port
+    # published to your computer at all. This also avoids clashing with
+    # any other MongoDB (or other project) already using port 27017 on
+    # your machine.
+    volumes:
+      - mongo_data:/data/db
+
+  backend:
+    build: ./backend
+    container_name: edaic_backend
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    environment:
+      - ENV=production
+      - DEBUG=false
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB_NAME=edaic_db
+      - USE_MOCK_DB=false
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:80,http://localhost
+    ports:
+      - "8000:8000"
+    volumes:
+      - backend_storage:/app/storage
+
+  frontend:
+    build: ./frontend
+    container_name: edaic_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  mongo_data:
+  backend_storage:

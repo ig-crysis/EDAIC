@@ -1,0 +1,30 @@
+# Render Blueprint — lets you create the backend service in one step via
+# "New +" -> "Blueprint" in the Render dashboard, pointed at this repo.
+# See README.md / DEPLOY.md for the manual "New Web Service" alternative.
+services:
+  - type: web
+    name: edaic-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: ENV
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: USE_MOCK_DB
+        value: "true"
+      - key: MONGO_DB_NAME
+        value: edaic_db
+      - key: MAX_UPLOAD_SIZE_MB
+        value: "25"
+      - key: OUTLIER_CONTAMINATION
+        value: "0.05"
+      - key: RANDOM_STATE
+        value: "42"
+      # Update this to your actual Netlify URL after the frontend is
+      # deployed (Render dashboard -> edaic-backend -> Environment).
+      - key: ALLOWED_ORIGINS
+        value: https://REPLACE-WITH-YOUR-NETLIFY-URL.netlify.app
