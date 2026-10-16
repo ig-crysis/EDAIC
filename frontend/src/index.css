@@ -73,6 +73,26 @@ body {
   animation: data-grid-drift 60s linear infinite;
 }
 
+/* A field of stray white 0/1s scattered across the whole fixed background
+   (populated by the inline script in index.html), twinkling in place
+   alongside the video — the same texture Hero.jsx uses locally, now also
+   showing through the gaps between panels on every screen, not just the
+   hero banner. */
+.bg-bits {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.bg-bits span {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #ffffff;
+  opacity: var(--bo, 0.14);
+  animation: bit-twinkle var(--bdur, 4s) ease-in-out infinite;
+  animation-delay: var(--bdelay, 0s);
+}
+
 /* Darkens progressively toward the bottom so the data-dense panels further
    down the scroll stay legible, while the hero area up top shows the most
    of the video through. */

@@ -18,6 +18,7 @@
         />
       </video>
       <div class="bg-dots"></div>
+      <div class="bg-bits" id="bg-bits"></div>
       <div class="bg-overlay"></div>
     </div>
 
@@ -39,6 +40,28 @@
         var applyRate = function () { video.playbackRate = 1.35; };
         applyRate();
         video.addEventListener("loadedmetadata", applyRate);
+      })();
+
+      // A field of stray white 0/1s scattered across the whole page (not
+      // just the hero banner), twinkling alongside the background video —
+      // generated once at load since it's decorative, not app state.
+      (function () {
+        var container = document.getElementById("bg-bits");
+        if (!container) return;
+        var frag = document.createDocumentFragment();
+        var count = 80;
+        for (var i = 0; i < count; i++) {
+          var span = document.createElement("span");
+          span.textContent = Math.random() > 0.5 ? "1" : "0";
+          span.style.top = (Math.random() * 100).toFixed(2) + "%";
+          span.style.left = (Math.random() * 100).toFixed(2) + "%";
+          span.style.fontSize = (10 + Math.random() * 9).toFixed(1) + "px";
+          span.style.setProperty("--bo", (0.08 + Math.random() * 0.18).toFixed(2));
+          span.style.setProperty("--bdur", (3 + Math.random() * 4).toFixed(1) + "s");
+          span.style.setProperty("--bdelay", (Math.random() * 3).toFixed(1) + "s");
+          frag.appendChild(span);
+        }
+        container.appendChild(frag);
       })();
     </script>
   </body>
