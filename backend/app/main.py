@@ -89,7 +89,9 @@ app.include_router(adaptive.router)
 app.include_router(rules.router)
 
 
-@app.get("/health")
+# HEAD allowed so uptime monitors (UptimeRobot pings with HEAD on the free
+# plan) see 200 instead of 405 while keeping the Render instance awake.
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
     return {
         "status": "ok",
