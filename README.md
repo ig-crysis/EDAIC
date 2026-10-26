@@ -20,7 +20,7 @@ Upload a messy CSV/Excel file and the app will:
      code-like columns are skipped because near-identical values there are
      different entities, not typos)
    - Statistical outliers (Local Outlier Factor on numeric columns, row
-     identifiers excluded, explained with SHAP)
+     identifiers excluded, the most unusual ones explained with SHAP)
    - Inconsistent formatting (mixed casing, date formats, numeric-as-text)
    - Rare categories in low-cardinality text columns (likely typos)
    - Date anomalies (dates far outside the usual range, before 1900 or in the future)
@@ -251,8 +251,16 @@ Each detector in `app/services/` is independent and returns a list of
   Flagged points are explained using **SHAP**, which attributes the
   anomaly score to individual columns — so instead of "row 14 is weird"
   you get "row 14 is weird mainly because of `age` (2.5σ from the mean)".
-  If SHAP can't compute in time, a z-score fallback still produces a
-  useful (if less precise) explanation, so the pipeline never breaks.
+  SHAP is expensive (its cost grows with the number of flagged rows *and*
+  numeric columns), so it covers the 30 most anomalous rows per file, with a
+  small background sample and a 20-second wall-clock budget. Every other
+  outlier — or any dataset where SHAP can't finish — gets a z-score
+  explanation naming the columns furthest from normal, so no outlier is left
+  unexplained and the pipeline never breaks. The limits are constants at the
+  top of `app/services/outliers.py` (`SHAP_MAX_ROWS`, `SHAP_TIME_BUDGET_SECONDS`).
+  For wide files (8+ numeric columns) LOF uses brute-force neighbour search,
+  which returns identical results but is much faster than a tree in many
+  dimensions.
 - **Inconsistent values** — rule-based checks for: casing/whitespace
   variants of the same category, mixed date formats within one column,
   and numeric values contaminated with units/commas/symbols.
@@ -311,10 +319,12 @@ naming the exact method used, so the audit trail is transparent end-to-end.
   requiring the examiner to install MongoDB — a practical concession
   for an academic demo, clearly documented so it isn't mistaken for
   hiding a missing integration.
-- **SHAP has a fallback**: because SHAP's `KernelExplainer`-style
-  computation can be slow or fail on some data shapes, a z-score-based
-  explanation is substituted automatically rather than crashing — a
-  small but real reliability/robustness decision worth calling out.
+- **SHAP is bounded, with a fallback**: SHAP's `KernelExplainer` is slow on
+  large or wide files (a 6,000-row file with ~14 numeric columns took many
+  minutes and never finished on a small hosted CPU), so it is limited to the
+  most anomalous rows under a time budget; every other outlier gets a
+  z-score-based explanation, as does any dataset where SHAP fails — a small
+  but real reliability decision worth calling out.
 
 
 ---

@@ -11,12 +11,35 @@ LOF particularly good at catching outliers that are only unusual *within
 a specific local cluster*, even if they'd look unremarkable compared to
 the dataset as a whole.
 """
+import time
 import uuid
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import LocalOutlierFactor
 from app.config import settings
 from app.services.duplicates import _detect_id_columns
+
+# --- Keeping explanations affordable on large / wide datasets --------------
+# SHAP's KernelExplainer re-runs the LOF model many thousands of times for
+# every row it explains, and each run compares against every training row.
+# Left unbounded that cost grows with the number of flagged rows AND the
+# number of numeric columns: a 6,000-row file with ~14 numeric columns took
+# many minutes locally and never finished on a small hosted CPU. So SHAP is
+# applied to the most anomalous rows only, with a small background sample,
+# and under a wall-clock budget. Every other flagged row still gets the
+# z-score explanation below, so no outlier is ever left unexplained.
+SHAP_MAX_ROWS = 30              # most anomalous flagged rows that get SHAP
+SHAP_BACKGROUND_ROWS = 20       # rows sampled as SHAP's reference data
+SHAP_MIN_SAMPLES = 128          # model evaluations per explained row (floor)
+SHAP_TIME_BUDGET_SECONDS = 20.0 # stop starting new rows after this long
+SHAP_CHUNK_ROWS = 2             # rows explained between budget checks
+
+# Tree-based neighbour search degrades toward brute force as the number of
+# columns grows, and is then slower than plain brute force (which uses fast
+# matrix maths). 'brute' returns exactly the same neighbours, so scores are
+# unchanged; it is only used where it wins and the O(n^2) cost stays small.
+BRUTE_MIN_FEATURES = 8
+BRUTE_MAX_ROWS = 50_000
 
 
 def detect_outliers(df: pd.DataFrame, contamination: float = None) -> list[dict]:
@@ -52,10 +75,12 @@ def detect_outliers(df: pd.DataFrame, contamination: float = None) -> list[dict]
     # novelty=True is required so we can call .decision_function()/.predict()
     # after fitting (needed both for scoring and for SHAP's explainer to
     # probe the model) — otherwise LOF only exposes fit_predict().
+    use_brute = scoring_df.shape[1] >= BRUTE_MIN_FEATURES and len(scoring_df) <= BRUTE_MAX_ROWS
     model = LocalOutlierFactor(
         n_neighbors=n_neighbors,
         contamination=contamination,
         novelty=True,
+        algorithm="brute" if use_brute else "auto",
     )
     model.fit(scoring_df.values)
     preds = model.predict(scoring_df.values)          # -1 = outlier, 1 = normal
@@ -84,7 +109,7 @@ def detect_outliers(df: pd.DataFrame, contamination: float = None) -> list[dict]
             return 1.0
         return max(0.0, min(1.0, (score_max - score) / score_range))
 
-    shap_values = _compute_shap_safe(model, scoring_df, outlier_positions)
+    shap_values = _compute_shap_safe(model, scoring_df, outlier_positions, scores=scores)
 
     issues = []
     col_std = scoring_df.std(numeric_only=True).replace(0, 1e-9)
@@ -115,7 +140,11 @@ def detect_outliers(df: pd.DataFrame, contamination: float = None) -> list[dict]
             driver_desc = ", ".join(
                 f"{c} (value={row[c]:.3g}, {z[c]:.1f}σ from mean)" for c in driver_cols
             )
-            method = "Local Outlier Factor + z-score fallback"
+            if shap_values is not None:
+                # SHAP ran, but only for the most anomalous rows (see SHAP_MAX_ROWS)
+                method = "Local Outlier Factor + z-score ranking (SHAP covers the most unusual rows)"
+            else:
+                method = "Local Outlier Factor + z-score fallback"
 
         severity = "high" if strength >= 0.66 else ("medium" if strength >= 0.33 else "low")
 
@@ -197,19 +226,27 @@ def _build_plain_explanation(row_idx, driver_cols, row, col_mean, col_std, col_m
     return sentence
 
 
-def _compute_shap_safe(model, scoring_df: pd.DataFrame, positions, max_explain: int = 200):
+def _compute_shap_safe(
+    model,
+    scoring_df: pd.DataFrame,
+    positions,
+    scores=None,
+    max_explain: int = SHAP_MAX_ROWS,
+    time_budget: float = SHAP_TIME_BUDGET_SECONDS,
+):
     """
-    Computes SHAP values for the flagged rows only, using KernelExplainer
-    on LOF's decision function. Returns {row_position: contributions}, or
-    None if SHAP is unavailable/fails, in which case the caller falls back
-    to z-score ranking so the pipeline never breaks because of the
-    explainability layer.
+    Computes SHAP values for the most anomalous flagged rows, using
+    KernelExplainer on LOF's decision function. Returns
+    {row_position: contributions} (possibly covering only some of the
+    flagged rows), or None if SHAP is unavailable/fails, in which case the
+    caller falls back to z-score ranking so the pipeline never breaks
+    because of the explainability layer.
 
     Notes:
-    - Only flagged rows are explained (at most `max_explain`, most
-      anomalous first is not guaranteed; callers fall back to z-scores
-      for rows without SHAP values) which keeps runtime bounded on large
-      files.
+    - Rows are explained most-anomalous-first (lowest LOF score) when
+      `scores` is given, capped at `max_explain`, and in small chunks so the
+      wall-clock `time_budget` is honoured: when it runs out, rows already
+      explained keep their SHAP values and the rest use the z-score path.
     - KernelExplainer is used on purpose: shap.Explainer's automatic
       choice picks the Exact explainer for 3-10 columns, which needs
       2^n evaluations and fails under a small evaluation budget, and that
@@ -219,22 +256,33 @@ def _compute_shap_safe(model, scoring_df: pd.DataFrame, positions, max_explain: 
         import shap
         import warnings
         n_features = scoring_df.shape[1]
-        background = scoring_df.sample(
-            min(len(scoring_df), 100), random_state=settings.RANDOM_STATE
-        ).values
-        positions = [int(p) for p in positions][:max_explain]
+        positions = [int(p) for p in positions]
+        if scores is not None:
+            positions.sort(key=lambda p: float(scores[p]))   # most anomalous first
+        positions = positions[:max_explain]
         if not positions:
             return {}
+
+        background = scoring_df.sample(
+            min(len(scoring_df), SHAP_BACKGROUND_ROWS), random_state=settings.RANDOM_STATE
+        ).values
+        nsamples = min(max(2 * n_features + 2, SHAP_MIN_SAMPLES), 1024)
         decision_fn = lambda x: model.decision_function(x)
+        values = scoring_df.values
+        out = {}
+        started = time.monotonic()
+
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             explainer = shap.KernelExplainer(decision_fn, background)
-            vals = explainer.shap_values(
-                scoring_df.values[positions],
-                nsamples=min(2 * n_features + 256, 1024),
-                silent=True,
-            )
-        vals = np.asarray(vals).reshape(len(positions), n_features)
-        return {p: vals[k] for k, p in enumerate(positions)}
+            for i in range(0, len(positions), SHAP_CHUNK_ROWS):
+                if out and time.monotonic() - started > time_budget:
+                    break   # out of time: remaining rows use the z-score path
+                chunk = positions[i:i + SHAP_CHUNK_ROWS]
+                vals = explainer.shap_values(values[chunk], nsamples=nsamples, silent=True)
+                vals = np.asarray(vals).reshape(len(chunk), n_features)
+                for k, p in enumerate(chunk):
+                    out[p] = vals[k]
+        return out
     except Exception:
         return None

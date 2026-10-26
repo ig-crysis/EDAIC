@@ -44,7 +44,7 @@ export default function Explainability() {
           <p className="content-section-lede">
             Which one you see depends on what produced the suggestion. Rule-based checks are
             interpretable by construction; the one model-based check, outlier detection, is
-            explained with SHAP (SHapley Additive exPlanations).
+            explained with SHAP (SHapley Additive exPlanations) for the most unusual rows.
           </p>
           <div className="table-wrap">
             <table className="data-table">
@@ -75,8 +75,10 @@ export default function Explainability() {
                   <td style={{ whiteSpace: 'normal', minWidth: 260 }}>
                     Attributes the anomaly score to individual columns for that specific row, so
                     the answer is "unusual mainly because of <em>revenue</em>", not just
-                    "unusual". If SHAP cannot finish on a given dataset, a z-score explanation
-                    is used instead so the pipeline never breaks.
+                    "unusual". SHAP is expensive, so it covers the 30 most unusual outliers in a
+                    file (within a 20-second budget) to keep large uploads fast. Every other
+                    outlier, or any dataset where SHAP cannot finish, gets a z-score
+                    explanation that names the columns furthest from normal.
                   </td>
                 </tr>
               </tbody>

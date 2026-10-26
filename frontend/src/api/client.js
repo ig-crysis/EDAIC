@@ -60,6 +60,11 @@ export async function resetAdaptiveState() {
 }
 
 export function extractErrorMessage(err) {
+  // The request was sent but the server took longer than the client limit.
+  // That is NOT "unreachable" -- the backend is up and probably still working.
+  if (err?.code === 'ECONNABORTED' || /timeout/i.test(err?.message || '')) {
+    return 'The analysis is taking longer than the 3-minute limit. Very large or wide files can be slow on the free hosted backend — try a smaller sample of the file (for example the first 2,000 rows), or try again in a minute.';
+  }
   // No response at all means the request never reached the API (backend not
   // running, wrong port, CORS) -- say so instead of axios's bare "Network Error".
   if (err?.request && !err.response) {

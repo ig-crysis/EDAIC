@@ -28,8 +28,8 @@ const STAGES = [
     body: (
       <>
         Every suggestion carries a plain-English reason, the method that found it and a
-        confidence score. Outliers are explained with SHAP; the rest are explained by the rule
-        that fired. See the <a href={hrefFor('explainability')}>Explainability</a> page.
+        confidence score. The most unusual outliers are explained with SHAP, other outliers by a column
+        ranking, and everything else by the rule that fired. See the <a href={hrefFor('explainability')}>Explainability</a> page.
       </>
     ),
   },
@@ -60,7 +60,7 @@ const STAGES = [
 const DETECTOR_GROUPS = [
   ['Missing values', 'Empty cells, with a suggested fill. A column that is more than 90% empty is reported once as sparse (drop or keep) instead of cell by cell.', 'Mean, median or mode — chosen per column, with the reason given'],
   ['Duplicates', 'Exact duplicate rows and near-duplicates such as typos or spacing differences.', 'Row hashing, then fuzzy matching on the most name-like column (e-mail and code columns are skipped)'],
-  ['Outliers', 'Numeric rows that are unusual compared with their neighbours.', 'Local Outlier Factor, explained with SHAP; row identifiers excluded'],
+  ['Outliers', 'Numeric rows that are unusual compared with their neighbours.', 'Local Outlier Factor; SHAP explains the most unusual rows, z-scores the rest; row identifiers excluded'],
   ['Inconsistent formatting', 'Mixed casing, mixed date formats, numbers stored as text.', 'Rule-based'],
   ['Rare categories', 'Very rare values in low-cardinality text columns, which are likely typos.', 'Value frequency'],
   ['Date anomalies', 'Dates far outside the usual range, before 1900, or in the future.', 'Range check'],

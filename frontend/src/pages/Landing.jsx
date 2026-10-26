@@ -172,8 +172,8 @@ export default function Landing({ route }) {
           </h1>
 
           <p className="subhead anim" style={{ '--d': '0.28s' }}>
-            Eight groups of detectors flag what is wrong with a dataset, SHAP explains every
-            outlier, and nothing is applied without your review — while the outlier
+            Eight groups of detectors flag what is wrong with a dataset, SHAP explains the
+            most unusual outliers, and nothing is applied without your review — while the outlier
             sensitivity adapts from your accept and reject decisions.
           </p>
 

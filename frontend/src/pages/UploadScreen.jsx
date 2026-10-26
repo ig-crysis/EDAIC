@@ -2,6 +2,7 @@ import { hrefFor } from '../router';
 import Screen, { ErrorBanner } from '../components/Screen';
 import DropZone from '../components/DropZone';
 import DataPreviewTable from '../components/DataPreviewTable';
+import BusyNotice from '../components/BusyNotice';
 
 export default function UploadScreen({ session }) {
   const { analysis, dataset, isBusy, error, handleFileSelected, handleLoadSample } = session;
@@ -26,11 +27,7 @@ export default function UploadScreen({ session }) {
         </div>
       </div>
 
-      {isBusy && (
-        <div className="state-message">
-          The first run after the backend starts can take a minute while the ML libraries load.
-        </div>
-      )}
+      {isBusy && <BusyNotice />}
 
       {!isBusy && hasDataset && (
         <div>
