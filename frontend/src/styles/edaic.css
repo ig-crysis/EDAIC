@@ -1,0 +1,321 @@
+/* EDAIC-specific pieces that ADQI's dashboard has no direct equivalent of
+   (issue accordion, filter chips, data-preview controls, sensitivity gauge).
+   Built only from ADQI's tokens and component language (panels, pill buttons,
+   badges, 12% borders) so they read as part of the same UI. */
+
+/* ---------- Upload ---------- */
+
+.panel.is-dragging {
+  border-color: #fff;
+  background: var(--surface-2);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---------- Inline bars inside tables ---------- */
+
+.mini-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mini-bar .bar-chart-track {
+  width: 84px;
+}
+
+.mini-bar-value {
+  min-width: 48px;
+  font-variant-numeric: tabular-nums;
+}
+
+.bar-chart-wide .bar-chart-row {
+  grid-template-columns: 150px 1fr 42px;
+}
+
+@media (max-width: 720px) {
+  .bar-chart-wide .bar-chart-row {
+    grid-template-columns: 100px 1fr 36px;
+  }
+}
+
+/* ---------- Data preview ---------- */
+
+.preview-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 4px;
+}
+
+.preview-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.num-input {
+  width: 140px;
+}
+
+.field-error {
+  color: var(--status-critical);
+  font-size: 12.5px;
+  margin: 0 0 12px;
+}
+
+.preview-foot {
+  color: var(--muted);
+  font-size: 12.5px;
+  margin: 12px 0 0;
+}
+
+.data-table td.cell-index {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-table td.cell-changed {
+  color: var(--status-good);
+  background: rgba(12, 163, 12, 0.14);
+}
+
+.cell-empty {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.data-table tbody tr.row-target {
+  box-shadow: inset 3px 0 0 #fff;
+}
+
+/* ---------- Filter chips ---------- */
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.preview-controls .chip-row {
+  margin-bottom: 0;
+}
+
+.chip {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.chip:hover {
+  background: var(--surface-2);
+  color: #fff;
+}
+
+.chip.is-active {
+  background: #fff;
+  border-color: #fff;
+  color: #000;
+}
+
+.chip-row-label {
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.bulk-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+/* ---------- Issue list ---------- */
+
+.issue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 560px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.issue {
+  border: 1px solid var(--border);
+  border-left: 3px solid rgba(142, 142, 142, 0.6);
+  border-radius: var(--radius-control);
+  background: var(--surface-2);
+}
+
+.issue-high {
+  border-left-color: var(--status-critical);
+}
+
+.issue-medium {
+  border-left-color: var(--status-warning);
+}
+
+.issue-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 14px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-control);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.issue-head:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.issue-type {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+
+.issue-meta {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.issue-spacer {
+  flex: 1;
+}
+
+.issue-chevron {
+  color: var(--muted);
+  transition: transform 0.25s var(--ease-out-standard);
+}
+
+.issue.is-open .issue-chevron {
+  transform: rotate(180deg);
+}
+
+.issue-body {
+  padding: 2px 14px 14px;
+  border-top: 1px solid var(--border);
+}
+
+.issue-explanation {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #f1f1f1;
+  margin: 12px 0;
+}
+
+.issue-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  color: var(--muted);
+  font-size: 12.5px;
+  margin-bottom: 12px;
+}
+
+.issue-facts strong {
+  color: #fff;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.issue-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- Sensitivity gauge (Admin) ---------- */
+
+.gauge {
+  margin: 24px 6px 4px;
+}
+
+.gauge-track {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+
+.gauge-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--series-completeness);
+  transition: width 0.5s var(--ease-out-standard);
+}
+
+.gauge-default {
+  position: absolute;
+  top: -6px;
+  width: 2px;
+  height: 20px;
+  background: var(--border-strong);
+  transform: translateX(-1px);
+}
+
+.gauge-knob {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--surface-1);
+  transform: translate(-50%, -50%);
+  transition: left 0.5s var(--ease-out-standard);
+}
+
+.gauge-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Inline code in explainer copy ---------- */
+
+.content-section-lede code {
+  font-size: 0.92em;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: var(--surface-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gauge-fill,
+  .gauge-knob,
+  .issue-chevron {
+    transition: none;
+  }
+}

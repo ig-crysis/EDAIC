@@ -1,0 +1,833 @@
+/* EDAIC theme -- loaded last.
+   The structure and component language come from ADQI (site.css / shell.css /
+   content.css), but this layer re-tints and re-fonts them with the original
+   EDAIC look: near-black surfaces, a teal + violet accent pair, coral/amber
+   severities, Space Grotesk headings, JetBrains Mono data, a Silkscreen pixel
+   headline, the darkened looping video with drifting dots and twinkling
+   binary digits, and the floating pill header. Nothing here changes layout
+   logic -- it only overrides tokens and appearance. */
+
+:root {
+  /* surfaces */
+  --bg: #0a0b10;
+  --surface-1: #121319;
+  --surface-2: #191b23;
+  --border: #262834;
+  --border-strong: #363849;
+
+  /* text */
+  --text: #edeff4;
+  --text-secondary: #b9bfce;
+  --muted: #8d93a6;
+
+  /* brand accents */
+  --teal: #35d0b0;
+  --teal-soft: #0f2c26;
+  --violet: #7c7cf0;
+  --violet-soft: #1c1c33;
+  --amber: #f2b84b;
+  --coral: #f1667a;
+  --coral-soft: #2c1620;
+  --sky: #5aa9e6;
+
+  /* categorical series (fixed order) */
+  --series-completeness: #7c7cf0;
+  --series-uniqueness: #f2b84b;
+  --series-validity: #35d0b0;
+  --series-consistency: #5aa9e6;
+
+  /* status */
+  --status-good: #35d0b0;
+  --status-warning: #f2b84b;
+  --status-critical: #f1667a;
+
+  --trust-bg: #191b23;
+  --pill-dark: #191b23;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---------- Fonts ---------- */
+
+.panel-title,
+.step-title,
+.content-section-title,
+.btn,
+.chip,
+.dropzone-title,
+.score-ring-caption {
+  font-family: var(--font-display);
+}
+
+.metric-value,
+.stat-value,
+.bar-chart-value,
+.panel .data-table td,
+.issue-meta,
+.issue-facts strong,
+.preview-foot,
+.gauge-scale {
+  font-family: var(--font-mono);
+}
+
+.panel .data-table td.cell-prose {
+  font-family: var(--font-sans);
+}
+
+.panel .data-table td {
+  font-size: 12.5px;
+}
+
+.data-table thead th {
+  font-family: var(--font-display);
+}
+
+.metric-value {
+  font-weight: 600;
+}
+
+/* Pixel headings (Silkscreen is wide, so sizes are smaller than ADQI's) */
+
+.page-title {
+  font-size: clamp(20px, 2.8vw, 30px);
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-shadow: 0 0 22px rgba(124, 124, 240, 0.4);
+}
+
+.content-hero-title {
+  font-size: clamp(24px, 4.2vw, 44px);
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-shadow: 0 0 24px rgba(124, 124, 240, 0.4);
+}
+
+.step-number {
+  font-size: 16px;
+  color: var(--teal);
+}
+
+/* ---------- Shared backdrop (video, wash, dots, binary digits) ---------- */
+
+@keyframes dataGridDrift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 300px 300px;
+  }
+}
+
+@keyframes bitTwinkle {
+  0%,
+  100% {
+    opacity: var(--bo, 0.12);
+  }
+  50% {
+    opacity: calc(var(--bo, 0.12) * 0.25);
+  }
+}
+
+@keyframes pulseRing {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.25);
+  }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #000;
+  pointer-events: none;
+}
+
+.backdrop-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.5) saturate(1.15);
+}
+
+/* Translucent brand-colour wash so the video picks up the app's own palette */
+.backdrop-wash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 1000px 500px at 50% -10%, rgba(124, 124, 240, 0.34), transparent 60%),
+    radial-gradient(ellipse 900px 460px at 20% 25%, rgba(53, 208, 176, 0.22), transparent 65%),
+    radial-gradient(ellipse 900px 460px at 85% 20%, rgba(241, 102, 122, 0.2), transparent 65%);
+}
+
+.backdrop-dots {
+  position: absolute;
+  inset: -40px;
+  opacity: 0.3;
+  background-image: radial-gradient(rgba(237, 239, 244, 0.08) 1px, transparent 1px);
+  background-size: 30px 30px;
+  animation: dataGridDrift 60s linear infinite;
+}
+
+.backdrop-bits {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.backdrop-bits span {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: #fff;
+  opacity: var(--bo, 0.14);
+  animation: bitTwinkle var(--bdur, 4s) ease-in-out infinite;
+  animation-delay: var(--bdelay, 0s);
+}
+
+/* Darkens toward the bottom so data-dense panels stay legible */
+.backdrop-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 46% at 50% 0%, rgba(10, 11, 16, 0.1), transparent 60%),
+    linear-gradient(180deg, rgba(10, 11, 16, 0.2) 0%, rgba(10, 11, 16, 0.55) 45%, rgba(10, 11, 16, 0.88) 80%, var(--bg) 100%);
+}
+
+/* Landing: let the video show through, fade to black only for the stats row */
+.backdrop.is-landing .backdrop-video {
+  filter: brightness(0.62) saturate(1.1);
+}
+
+.backdrop.is-landing .backdrop-overlay {
+  background: linear-gradient(180deg, rgba(10, 11, 16, 0.05) 0%, rgba(10, 11, 16, 0.12) 55%, rgba(10, 11, 16, 0.88) 100%);
+}
+
+/* Long-form reading pages: calmer, darker, so paragraphs stay legible */
+.backdrop.is-reading .backdrop-overlay {
+  background: linear-gradient(180deg, rgba(10, 11, 16, 0.62) 0%, rgba(10, 11, 16, 0.84) 40%, rgba(10, 11, 16, 0.94) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop-dots,
+  .backdrop-bits span {
+    animation: none !important;
+  }
+}
+
+/* ---------- Floating pill header (as in the original EDAIC UI) ---------- */
+
+.app-header {
+  top: 14px;
+  width: calc(100% - 2 * clamp(12px, 3vw, 32px));
+  max-width: 1152px;
+  margin: 14px auto 0;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(10, 11, 16, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.8);
+}
+
+.app-header-spacer {
+  display: none;
+}
+
+.app-brand {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.app-logo {
+  box-shadow: none;
+}
+
+.app-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.app-brand-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.app-brand-sub {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.app-nav {
+  gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.app-nav a {
+  padding: 7px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.app-nav a:hover {
+  background: transparent;
+  color: var(--text);
+}
+
+.app-nav a.is-active {
+  background: #fff;
+  color: #0a0b10;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25), 0 0 16px rgba(255, 255, 255, 0.35);
+}
+
+.app-header .home-link {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 500;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.app-header .home-link:hover,
+.app-header .home-link.is-active {
+  background: rgba(124, 124, 240, 0.22);
+  border-color: rgba(124, 124, 240, 0.5);
+}
+
+@media (max-width: 980px) {
+  .app-brand-text {
+    display: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .app-header {
+    border-radius: 28px;
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .app-nav {
+    flex-wrap: nowrap;
+  }
+
+  .app-nav a {
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+}
+
+/* ---------- Panels, cards, accents ---------- */
+
+.panel::before,
+.step-card::before,
+.example-card::before {
+  background: linear-gradient(90deg, rgba(53, 208, 176, 0.9), rgba(124, 124, 240, 0.55) 55%, transparent);
+}
+
+.panel,
+.metric,
+.step-card,
+.example-card {
+  border-color: var(--border);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn-primary {
+  background: var(--teal);
+  color: #06110d;
+  box-shadow: 0 0 0 1px rgba(53, 208, 176, 0.3), 0 8px 24px -8px rgba(53, 208, 176, 0.5);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: var(--teal);
+  filter: brightness(1.1);
+  box-shadow: 0 0 0 1px rgba(53, 208, 176, 0.45), 0 10px 28px -8px rgba(53, 208, 176, 0.7);
+}
+
+.btn-ghost {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.btn-ghost:not(:disabled):hover {
+  background: var(--surface-2);
+  border-color: rgba(124, 124, 240, 0.5);
+}
+
+.btn-approve {
+  background: var(--teal-soft);
+  color: var(--teal);
+  border-color: rgba(53, 208, 176, 0.35);
+}
+
+.btn-reject {
+  background: var(--coral-soft);
+  color: var(--coral);
+  border-color: rgba(241, 102, 122, 0.35);
+}
+
+.btn-approve:not(:disabled):hover,
+.btn-reject:not(:disabled):hover {
+  filter: brightness(1.25);
+}
+
+/* ---------- Badges, banners, cells ---------- */
+
+.badge-high,
+.badge-rejected {
+  color: var(--coral);
+  background: rgba(241, 102, 122, 0.14);
+}
+
+.badge-medium,
+.badge-modified {
+  color: var(--amber);
+  background: rgba(242, 184, 75, 0.14);
+}
+
+.badge-approved {
+  color: var(--teal);
+  background: rgba(53, 208, 176, 0.14);
+}
+
+.banner-info {
+  background: rgba(124, 124, 240, 0.12);
+  color: #c9c9fb;
+  border-color: rgba(124, 124, 240, 0.32);
+}
+
+.banner-info a {
+  color: #c9c9fb;
+}
+
+.banner-warning {
+  background: rgba(242, 184, 75, 0.12);
+  color: #ffd889;
+  border-color: rgba(242, 184, 75, 0.3);
+}
+
+.banner-error {
+  background: var(--coral-soft);
+  color: #ffadb9;
+  border: 1px solid rgba(241, 102, 122, 0.35);
+}
+
+.toast.toast-error {
+  background: var(--coral);
+  color: #1b0a0e;
+}
+
+.state-message {
+  border-color: var(--border-strong);
+}
+
+.data-table td.cell-changed {
+  color: var(--teal);
+  background: rgba(53, 208, 176, 0.12);
+}
+
+.data-table tbody tr.is-selected {
+  background: var(--violet-soft);
+}
+
+.data-table tbody tr.row-target {
+  box-shadow: inset 3px 0 0 var(--violet);
+}
+
+.panel.is-dragging {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+
+.gauge-fill {
+  background: var(--violet);
+}
+
+.gauge-knob {
+  background: var(--violet);
+}
+
+.spinner {
+  border-top-color: var(--teal);
+}
+
+/* ---------- Filter chips: teal when active ---------- */
+
+.chip:hover {
+  border-color: rgba(53, 208, 176, 0.5);
+  background: transparent;
+}
+
+.chip.is-active {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: #06110d;
+}
+
+/* ---------- Landing ---------- */
+
+.landing .bg {
+  display: none;
+}
+
+.headline {
+  font-size: clamp(22px, 5vw, 60px);
+  letter-spacing: 0;
+  line-height: 1.35;
+  text-shadow: 0 0 24px rgba(124, 124, 240, 0.45), 0 0 48px rgba(53, 208, 176, 0.25);
+}
+
+.headline-line + .headline-line {
+  background-image: linear-gradient(90deg, var(--teal), var(--violet));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.trust-pill {
+  background: rgba(18, 19, 25, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.trust-pill {
+  font-family: var(--font-mono);
+  font-size: clamp(10.5px, 1.2vw, 12px);
+  color: var(--text-secondary);
+}
+
+.trust-dot {
+  width: 6px;
+  height: 6px;
+  margin-right: 9px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: pulseRing 2s ease-in-out infinite;
+}
+
+.trust-avatar-inner {
+  color: #0a0b10;
+}
+
+.cta {
+  background: var(--teal);
+  color: #06110d;
+  font-family: var(--font-display);
+  box-shadow: 0 0 0 1px rgba(53, 208, 176, 0.3), 0 8px 28px -8px rgba(53, 208, 176, 0.6);
+}
+
+.cta:hover {
+  box-shadow: 0 0 0 1px rgba(53, 208, 176, 0.5), 0 12px 34px -8px rgba(53, 208, 176, 0.85);
+  filter: brightness(1.08);
+}
+
+@keyframes revealPulse {
+  0% {
+    opacity: 0;
+    transform: translateY(22px) scale(0.98);
+    filter: blur(6px);
+    box-shadow: 0 0 0 rgba(53, 208, 176, 0);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(0) scale(1.03);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+    box-shadow: 0 0 0 1px rgba(53, 208, 176, 0.3), 0 8px 28px -8px rgba(53, 208, 176, 0.6);
+  }
+}
+
+/* site.css gives .stat-icon the pixel face (ADQI uses text glyphs); here it is a
+   Font Awesome icon, so the Font Awesome family has to win. */
+i.stat-icon.fa-solid {
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+}
+
+.stat-icon {
+  font-size: clamp(15px, 1.8vw, 18px);
+  color: var(--violet);
+  line-height: 1;
+}
+
+.stat-value {
+  font-family: var(--font-mono);
+  font-size: clamp(16px, 2vw, 22px);
+  font-weight: 600;
+}
+
+.admin-pill {
+  background: rgba(25, 27, 35, 0.9);
+  border: 1px solid var(--border-strong);
+  font-family: var(--font-display);
+}
+
+.admin-pill:hover {
+  background: rgba(124, 124, 240, 0.25);
+}
+
+/* ---------- Upload drop zone (from the original EDAIC UI) ---------- */
+
+.upload-wrap {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.screen-centered .page-title,
+.screen-centered .page-subtitle {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.dropzone {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 72px 32px;
+  margin-bottom: 18px;
+  border: 1px dashed var(--border-strong);
+  border-radius: 20px;
+  background: rgba(18, 19, 25, 0.88);
+  backdrop-filter: blur(6px);
+  cursor: pointer;
+  opacity: 0;
+  animation: dashReveal 0.55s var(--ease-out-standard) 0.18s forwards;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.dropzone.is-compact {
+  padding: 30px 24px;
+}
+
+.dropzone:hover {
+  border-color: rgba(53, 208, 176, 0.6);
+}
+
+.dropzone.is-dragging {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+
+.dropzone.is-busy {
+  cursor: progress;
+}
+
+.dropzone-glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 30%, rgba(53, 208, 176, 0.08), transparent 60%);
+  transition: opacity 0.5s ease;
+}
+
+.dropzone:hover .dropzone-glow,
+.dropzone.is-dragging .dropzone-glow {
+  opacity: 1;
+}
+
+.dropzone-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 20px;
+  color: var(--teal);
+}
+
+.dropzone.is-compact .dropzone-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 12px;
+}
+
+.dropzone-icon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--teal-soft);
+  transition: transform 0.5s ease;
+}
+
+.dropzone:hover .dropzone-icon::before,
+.dropzone.is-dragging .dropzone-icon::before {
+  transform: scale(1.25);
+}
+
+.dropzone-icon svg {
+  position: relative;
+}
+
+.dropzone-title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.dropzone.is-compact .dropzone-title {
+  font-size: 15px;
+}
+
+.dropzone-sub {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.dropzone-spinner {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--teal);
+  animation: spin 0.7s linear infinite;
+}
+
+.upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---------- Quality score ring (from the original EDAIC UI) ---------- */
+
+.score-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 28px 40px;
+}
+
+.score-ring {
+  position: relative;
+  flex-shrink: 0;
+  width: 144px;
+  height: 144px;
+}
+
+.score-ring svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.score-ring-track {
+  stroke: var(--border);
+}
+
+.score-ring-arc {
+  transition: stroke 0.4s ease;
+}
+
+.score-ring-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score-ring-value {
+  font-family: var(--font-mono);
+  font-size: 38px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.score-ring-caption {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.score-dims {
+  flex: 1 1 320px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px 32px;
+}
+
+.score-dim-head {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.score-dim-head span:last-child {
+  font-family: var(--font-mono);
+  color: var(--text);
+  font-weight: 500;
+}
+
+.score-dim .bar-chart-track {
+  height: 6px;
+  border-radius: 999px;
+}
+
+.score-dim .bar-chart-fill {
+  border-radius: 999px;
+  transition: width 0.7s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropzone,
+  .score-dim .bar-chart-fill {
+    animation: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+  }
+}

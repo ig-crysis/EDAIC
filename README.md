@@ -43,8 +43,8 @@ Upload a messy CSV/Excel file and the app will:
 ```
 ┌──────────────┐      REST/JSON      ┌───────────────────┐      ┌─────────────┐
 │   React SPA   │ ──────────────────▶ │   FastAPI backend  │ ───▶ │  MongoDB    │
-│ (Vite, Tailwind)│ ◀────────────────  │ (Python, sklearn,  │      │ (metadata,  │
-│  charts: recharts│                   │  pandas, SHAP)     │      │  run history)│
+│ (Vite, ADQI UI) │ ◀────────────────  │ (Python, sklearn,  │      │ (metadata,  │
+│  plain CSS bars │                    │  pandas, SHAP)     │      │  run history)│
 └──────────────┘                      └─────────┬──────────┘      └─────────────┘
                                                  │
                                         ┌────────▼─────────┐
@@ -53,9 +53,11 @@ Upload a messy CSV/Excel file and the app will:
                                         └────────────────────┘
 ```
 
-- **Frontend (React + Vite + Tailwind)**: upload UI, issue review list,
-  quality-score gauge, charts (recharts), before/after comparison, and
-  the download flow. Talks to the backend purely over REST.
+- **Frontend (React + Vite)**: the same UI as the ADQI project — landing page,
+  Pipeline and Explainability explainer pages, and a dashboard with Upload,
+  Profile, Review, Admin and Export screens (hash-routed, so every header
+  link is always clickable; screens that need data say so instead of being
+  disabled). Talks to the backend purely over REST.
 - **Backend (FastAPI)**: stateless request handlers that call into a
   `services/` layer containing all the ML/rule-based detectors. Uploaded
   files are stored on disk; dataset **metadata** (filename, row/column
@@ -116,22 +118,24 @@ edaic/
 ├── frontend/
 │   ├── src/
 │   │   ├── api/client.js            # axios wrapper for all backend calls
-│   │   ├── components/
-│   │   │   ├── Hero.jsx
-│   │   │   ├── FileUpload.jsx
-│   │   │   ├── StageTracker.jsx
-│   │   │   ├── DataQualityScore.jsx
-│   │   │   ├── ColumnProfileTable.jsx
-│   │   │   ├── DataPreviewTable.jsx
-│   │   │   ├── ChartsPanel.jsx
-│   │   │   ├── HowItWorks.jsx
-│   │   │   ├── PipelineDetail.jsx
-│   │   │   ├── AdaptiveLoopPanel.jsx
-│   │   │   ├── IssueList.jsx
-│   │   │   └── BeforeAfterComparison.jsx
+│   │   ├── pages/
+│   │   │   ├── Landing.jsx          # home: video background, stats, CTA
+│   │   │   ├── Pipeline.jsx         # long-form explainer (1 of 2)
+│   │   │   ├── Explainability.jsx   # long-form explainer (2 of 2)
+│   │   │   ├── UploadScreen.jsx     # dashboard: upload + column types + preview
+│   │   │   ├── ProfileScreen.jsx    # dashboard: quality scores, column profile, charts
+│   │   │   ├── ReviewScreen.jsx     # dashboard: accept/reject issues, apply cleaning
+│   │   │   ├── ExportScreen.jsx     # dashboard: before/after, download
+│   │   │   └── AdminScreen.jsx      # adaptive sensitivity monitor
+│   │   ├── components/              # AppHeader, Screen, UploadPanel, IssueList,
+│   │   │                            # DataPreviewTable, ColumnProfileTable,
+│   │   │                            # BeforeAfterComparison, BarChart, SkipLink
+│   │   ├── styles/                  # ported from ADQI: site.css (tokens + landing),
+│   │   │                            # shell.css (dashboard), content.css, edaic.css
 │   │   ├── utils/exportReport.js    # issue report (CSV) download
-│   │   ├── App.jsx                  # top-level workflow state machine
-│   │   └── index.css                # design tokens (Tailwind v4)
+│   │   ├── session.js               # dataset/analysis/decisions state, lives above the router
+│   │   ├── router.js                # hash router (#/pipeline, #/app/review, ...)
+│   │   └── App.jsx                  # route -> page, landing/dashboard body mode
 │   ├── package.json
 │   ├── .env.example
 │   ├── nginx.conf

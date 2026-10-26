@@ -1,0 +1,237 @@
+/* Content pages (Pipeline, Explainability) -- long-form, scrollable explainer
+   pages, sharing the dashboard's chrome (shell.css: header, panels, tables,
+   badges) plus landing-page-style display typography for the hero. Ported from
+   ADQI's landing/content.css. Deliberately no background video here: a moving
+   background behind paragraphs hurts legibility, and these pages exist to be read. */
+
+.content-hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: clamp(32px, 6vw, 64px) clamp(16px, 3vw, 32px) clamp(16px, 3vw, 24px);
+  text-align: left;
+}
+
+.content-eyebrow {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 10px;
+}
+
+.content-hero-title {
+  font-family: var(--font-pixel);
+  font-weight: 400;
+  font-size: clamp(30px, 5.4vw, 56px);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0 0 16px;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: contentReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.05s forwards;
+}
+
+.content-hero-lede {
+  font-size: clamp(15px, 1.7vw, 17.5px);
+  color: var(--text-secondary);
+  line-height: 1.65;
+  max-width: 620px;
+  opacity: 0;
+  transform: translateY(14px);
+  animation: contentReveal 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.15s forwards;
+}
+
+@keyframes contentReveal {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content-hero-title,
+  .content-hero-lede {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.content-section {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 clamp(16px, 3vw, 32px) clamp(28px, 4vw, 40px);
+}
+
+.content-section-title {
+  font-size: clamp(19px, 2.2vw, 23px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+
+.content-section-lede {
+  color: var(--text-secondary);
+  font-size: 14.5px;
+  line-height: 1.65;
+  margin: 0 0 20px;
+  max-width: 640px;
+}
+
+.step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-card,
+.example-card {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: contentReveal 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.step-list .step-card:nth-child(1) {
+  animation-delay: 0.08s;
+}
+.step-list .step-card:nth-child(2) {
+  animation-delay: 0.14s;
+}
+.step-list .step-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.step-list .step-card:nth-child(4) {
+  animation-delay: 0.26s;
+}
+.step-list .step-card:nth-child(5) {
+  animation-delay: 0.32s;
+}
+
+.example-grid .example-card:nth-child(1) {
+  animation-delay: 0.08s;
+}
+.example-grid .example-card:nth-child(2) {
+  animation-delay: 0.14s;
+}
+.example-grid .example-card:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.example-grid .example-card:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-card,
+  .example-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.step-card,
+.example-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.step-card::before,
+.example-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(57, 135, 229, 0.9), rgba(217, 89, 38, 0.55) 55%, transparent);
+}
+
+.step-card {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 16px 18px;
+}
+
+.step-number {
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.step-title {
+  font-weight: 600;
+  font-size: 14.5px;
+  margin: 0 0 4px;
+}
+
+.step-body {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.example-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.example-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 16px 18px;
+}
+
+.example-kind {
+  display: inline-block;
+  font-size: 11.5px;
+  color: var(--muted);
+  text-transform: none;
+  margin-bottom: 8px;
+}
+
+.example-sentence {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #f1f1f1;
+  font-style: normal;
+}
+
+.example-sentence::before {
+  content: "\201C";
+  color: var(--muted);
+}
+
+.example-sentence::after {
+  content: "\201D";
+  color: var(--muted);
+}
+
+.content-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  max-width: 760px;
+  margin: 8px auto 0;
+  padding: 20px clamp(16px, 3vw, 32px) 60px;
+}
+
+.content-cta-text {
+  color: var(--text-secondary);
+  font-size: 13.5px;
+}
+
+@media (max-width: 560px) {
+  .step-card {
+    grid-template-columns: 1fr;
+  }
+  .step-number {
+    display: none;
+  }
+}

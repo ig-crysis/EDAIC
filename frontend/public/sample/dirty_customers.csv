@@ -1,0 +1,16 @@
+customer_id,name,age,email,signup_date,city,purchase_amount
+1,John Smith,29,john.smith@email.com,2023-01-15,New York,150.00
+2,jane doe,34,jane.doe@email.com,2023-01-16,Chicago,220.50
+3,John Smith,29,john.smith@email.com,2023-01-15,New York,150.00
+4,Mike Brown,,mike.brown@email.com,15/01/2023,chicago,89.99
+5,Sara Lee,28,sara.lee@email.com,2023-01-18,Boston,175.25
+6,sara  lee,28,sara.lee@email.com,2023-01-18,boston,175.25
+7,Tom Clark,45,tom.clark@email.com,2023-01-19,Seattle,9999.00
+8,Amy White,31,amy.white@email.com,"January 20, 2023",New York,132.40
+9,Chris Green,,chris.green@email.com,2023-01-21,Denver,64.10
+10,Pat Adams,52,pat.adams@email.com,2023-01-22,Miami,210.00
+11,Nina Patel,27,nina.patel@email.com,2023-01-23,Austin,"1,250.00"
+12,Leo Young,38,leo.young@email.com,2023-01-24,Portland,95.75
+13,Leo Young,38,leo.young@email.com,2023-01-24,Portland,95.75
+14,Ivy King,,ivy.king@email.com,2023-01-25,new york,143.30
+15,Max Scott,60,max.scott@email.com,2023-01-26,Chicago,-15.00

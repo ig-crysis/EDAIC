@@ -60,5 +60,10 @@ export async function resetAdaptiveState() {
 }
 
 export function extractErrorMessage(err) {
+  // No response at all means the request never reached the API (backend not
+  // running, wrong port, CORS) -- say so instead of axios's bare "Network Error".
+  if (err?.request && !err.response) {
+    return `Could not reach the backend at ${API_BASE}. Make sure it is running and that VITE_API_BASE_URL points to it.`;
+  }
   return err?.response?.data?.detail || err?.message || 'Something went wrong. Please try again.';
 }

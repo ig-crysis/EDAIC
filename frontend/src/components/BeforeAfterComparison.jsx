@@ -1,4 +1,4 @@
-import { ArrowRight, Sparkles } from 'lucide-react';
+import BarChart from './BarChart';
 
 const DIMENSIONS = [
   { key: 'completeness', label: 'Completeness' },
@@ -8,37 +8,57 @@ const DIMENSIONS = [
   { key: 'overall_score', label: 'Overall' },
 ];
 
+const formatPct = (v) => `${v.toFixed(0)}%`;
+
 export default function BeforeAfterComparison({ before, after, nChanges }) {
+  const legend = [
+    { label: 'Before cleaning', color: 'var(--muted)' },
+    { label: 'After cleaning', color: 'var(--status-good)' },
+  ];
+
+  const groups = DIMENSIONS.map((d) => ({
+    label: d.label,
+    rows: [
+      { label: 'Before', value: before[d.key], color: 'var(--muted)' },
+      { label: 'After', value: after[d.key], color: 'var(--status-good)' },
+    ],
+  }));
+
   return (
-    <div className="bg-[var(--color-panel)] border border-[var(--color-border)] rounded-2xl p-6">
-      <div className="flex items-center gap-2 mb-5">
-        <Sparkles size={18} className="text-[var(--color-teal)]" />
-        <h3 className="font-display font-semibold">Cleaning applied — {nChanges} change{nChanges !== 1 ? 's' : ''} made</h3>
-      </div>
-      <div className="space-y-4">
-        {DIMENSIONS.map((d) => {
-          const b = before[d.key];
-          const a = after[d.key];
-          const delta = a - b;
-          return (
-            <div key={d.key} className="flex items-center gap-4">
-              <span className="w-28 text-sm text-[var(--color-text-muted)] shrink-0">{d.label}</span>
-              <span className="mono text-sm w-12 text-right text-[var(--color-text-muted)]">{b.toFixed(0)}</span>
-              <ArrowRight size={14} className="text-[var(--color-text-muted)] shrink-0" />
-              <span className="mono text-sm w-12 text-[var(--color-teal)] font-semibold">{a.toFixed(0)}</span>
-              <div className="flex-1 h-1.5 rounded-full bg-[var(--color-panel-2)] overflow-hidden relative">
-                <div className="h-full bg-[var(--color-border)] absolute" style={{ width: `${b}%` }} />
-                <div className="h-full bg-[var(--color-teal)] absolute transition-all duration-700" style={{ width: `${a}%` }} />
-              </div>
-              {delta > 0 && (
-                <span className="text-xs mono text-[var(--color-teal)] w-14 text-right">+{delta.toFixed(1)}</span>
-              )}
-              {delta <= 0 && (
-                <span className="text-xs mono text-[var(--color-text-muted)] w-14 text-right">{delta.toFixed(1)}</span>
-              )}
-            </div>
-          );
-        })}
+    <div className="panel">
+      <p className="panel-title">
+        Cleaning applied — {nChanges} change{nChanges !== 1 ? 's' : ''} made
+      </p>
+      <p className="panel-hint">Quality score on each dimension, before and after the accepted fixes.</p>
+
+      <BarChart legend={legend} groups={groups} maxValue={100} formatValue={formatPct} />
+
+      <div className="table-wrap" style={{ marginTop: 20 }}>
+        <table className="data-table">
+          <thead>
+            <tr>
+              <th>Dimension</th>
+              <th>Before</th>
+              <th>After</th>
+              <th>Change</th>
+            </tr>
+          </thead>
+          <tbody>
+            {DIMENSIONS.map((d) => {
+              const delta = after[d.key] - before[d.key];
+              return (
+                <tr key={d.key}>
+                  <td>{d.label}</td>
+                  <td>{formatPct(before[d.key])}</td>
+                  <td>{formatPct(after[d.key])}</td>
+                  <td style={{ color: delta > 0 ? 'var(--status-good)' : 'var(--muted)' }}>
+                    {delta > 0 ? '+' : ''}{delta.toFixed(1)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </div>
   );
